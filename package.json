@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Identity-verification support copilot with synthetic cases, policy retrieval, and human review.",
+  "description": "A personal helper for getting unstuck on identity verification.",
   "scripts": {
     "dev": "node server.mjs",
     "start": "node server.mjs",

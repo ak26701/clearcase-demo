@@ -1,52 +1,40 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyze, reviewCase } from '../src/engine.js';
-import { cases } from '../src/data.js';
-
-test('all ten sample cases retrieve a policy and proposed response', () => {
-  for (const input of cases) {
-    const result = analyze(input);
-    assert.ok(result.citations.length > 0);
-    assert.ok(result.action);
-    assert.ok(result.reply);
+import { createPlan, makeMessage, issues } from '../src/guide.js';
+const base = { service: 'Example app', device: 'computer', provider: '', tried: [] };
+test('each problem has an actionable plan and support draft', () => {
+  for (const issue of Object.keys(issues)) {
+    const result = createPlan({ ...base, issue });
+    assert.ok(result.steps.length);
+    assert.ok(result.message.includes('Example app support'));
   }
 });
-test('retry limit overrides routine capture guidance', () => {
-  const result = analyze({ signal: 'IMAGE_GLARE', attempts: 3 });
-  assert.equal(result.specialist, true);
-  assert.equal(result.citations[0].id, 'POL-08');
-  assert.equal(result.citations[1].id, 'POL-01');
-  assert.ok(!result.reply.includes('new photo'));
+test('completed troubleshooting is not recommended again', () => {
+  const result = createPlan({ ...base, issue: 'camera', tried: ['permissions', 'browser'] });
+  assert.equal(result.steps.length, 0);
+  assert.equal(result.supportFirst, true);
 });
-test('unknown and conflicting signals route to diagnosis', () => {
-  for (const signal of ['UNKNOWN_ERROR', 'NOT_A_CODE', undefined]) {
-    assert.equal(analyze({ signal, attempts: 1 }).citations[0].id, 'POL-07');
-  }
-  assert.equal(analyze({ signal: 'IMAGE_GLARE', attempts: 1, conflicting: true }).citations[0].id, 'POL-07');
+test('lockout guidance does not invent a retry count or recommend repeated submission', () => {
+  const result = createPlan({ ...base, issue: 'locked' });
+  assert.equal(result.supportFirst, true);
+  assert.match(result.title, /Pause retries/);
+  assert.match(result.reason, /no universal retry limit/);
+  assert.ok(!result.steps.some(step => step.id === 'restart'));
 });
-test('name mismatch requires specialist review', () => {
-  assert.equal(analyze({ signal: 'NAME_MISMATCH', attempts: 1 }).specialist, true);
+test('unknown issue does not claim a diagnosis', () => {
+  assert.match(createPlan({ ...base, issue: 'unknown' }).reason, /not enough information/);
 });
-test('invalid attempt counts fail explicitly', () => {
-  for (const attempts of [0, -1, 1.5, NaN, '1', 21]) assert.throws(() => analyze({ signal: 'IMAGE_GLARE', attempts }));
+test('camera advice changes with device', () => {
+  assert.match(createPlan({ ...base, issue: 'camera', device: 'android' }).steps[0].text, /On Android/);
+  assert.match(createPlan({ ...base, issue: 'camera', device: 'iphone' }).steps[0].text, /iPhone/);
 });
-test('approval requires analysis, a reviewer, and a response', () => {
-  const analysis = analyze(cases[0]);
-  assert.throws(() => reviewCase({ decision: 'approved', reviewer: 'Reviewer', reply: 'Reply' }));
-  assert.throws(() => reviewCase({ analysis, decision: 'approved', reviewer: ' ', reply: 'Reply' }));
-  assert.throws(() => reviewCase({ analysis, decision: 'approved', reviewer: 'Reviewer', reply: ' ' }));
-  const record = reviewCase({ analysis, decision: 'approved', reviewer: ' Reviewer ', reply: 'Edited reply' });
-  assert.equal(record.reviewer, 'Reviewer');
-  assert.equal(record.reply, 'Edited reply');
-  assert.deepEqual(record.policyIds, ['POL-01']);
+test('support message includes only supplied attempts and error', () => {
+  const message = makeMessage({ ...base, issue: 'photo', error: 'Could not read document', tried: ['photo'] });
+  assert.match(message, /Could not read document/);
+  assert.match(message, /Retook the photo/);
+  assert.ok(!message.includes('Allowed camera'));
 });
-test('specialist cases cannot be approved by support', () => {
-  const analysis = analyze(cases[2]);
-  assert.throws(() => reviewCase({ analysis, decision: 'approved', reviewer: 'Reviewer', reply: 'Reply' }), /specialist/);
-  assert.equal(reviewCase({ analysis, decision: 'escalated', reviewer: 'Reviewer' }).decision, 'escalated');
-});
-test('rejection requires a reason and records rejection as the action', () => {
-  const analysis = analyze(cases[0]);
-  assert.throws(() => reviewCase({ analysis, decision: 'rejected', reviewer: 'Reviewer' }), /reason/);
-  assert.equal(reviewCase({ analysis, decision: 'rejected', reviewer: 'Reviewer', note: 'Evidence needs further review' }).action, 'Reject recommendation');
+test('service and issue must be provided', () => {
+  assert.throws(() => createPlan({ ...base, service: ' ', issue: 'camera' }));
+  assert.throws(() => createPlan({ ...base, issue: 'invalid' }));
 });

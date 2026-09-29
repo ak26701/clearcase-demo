@@ -1,12 +1,23 @@
 # Clearcase
 
-A working identity-verification support copilot prototype. Choose a synthetic case, classify the blocker, retrieve the relevant mock policy, edit the next step, and record a human review decision.
+A personal helper for getting unstuck on identity verification.
 
-**[Open the live demo](https://clearcase-demo.vercel.app)**
+**[Open the app](https://clearcase-demo.vercel.app)**
+
+Enter the app or website asking you to verify, choose the problem you see, and get a short checklist plus an editable support message. No account or API key required.
+
+## What it does
+
+- Guides you through camera issues, rejected photos, incomplete selfies, unsupported or expired documents, name mismatches, expired sessions, pending reviews, lockouts, and unknown failures.
+- Adjusts camera instructions for your device and skips troubleshooting you already tried.
+- Links to official provider help, with a distinction between your selected provider and general reference material.
+- Drafts a support message with your error wording and attempted steps.
+- Lets you copy the message, download notes, mark the problem resolved, or optionally save progress on your device.
+- Keeps form entries in the browser. Nothing is sent automatically.
 
 ## Run locally
 
-Requires Node.js 20 or newer. No dependencies or API keys are needed.
+Node.js 20 or newer; no dependencies.
 
 ```sh
 git clone https://github.com/ak26701/clearcase-demo.git
@@ -17,48 +28,22 @@ npm start
 Open http://localhost:4173.
 
 ```sh
-npm test       # Policy precedence and review-gate checks
-npm run build # Produces a deployable static site in dist/
+npm test
+npm run build
 ```
 
-## Demo walkthrough
+## How it works
 
-1. Open Jordan Lee's glare case and select **Analyze case**.
-2. Open **POL-01** to inspect the policy source.
-3. Edit the proposed customer response, enter a reviewer name, and approve it.
-4. Open Taylor Chen's three-attempt liveness case. The retry limit requires escalation.
-5. Add a synthetic case with conflicting evidence. The system routes it for investigation.
-6. Open the review log and export the decisions as JSON.
+`src/guide.js` contains the troubleshooting paths, official source links, and support-message templates. `src/app.js` handles the form, checklist, draft editing, optional browser storage, and export. The production app is a static site.
 
-## What works
+This is a guided troubleshooter, not an AI diagnosis service. The selected problem determines the plan. Free-text errors are included in the support draft but not automatically interpreted. The helper cannot inspect an account, submit ID documents, remove restrictions, approve verification, or contact support.
 
-- Ten fictional cases covering glare, expiration, name mismatch, liveness, unsupported documents, session expiration, blocked camera access, unknown errors, blur, and network interruption.
-- Searchable case queue and review filters.
-- Explicit classification from synthetic session error codes.
-- Policy retrieval by signal with retry-limit and uncertainty precedence.
-- Policy citations, editable response drafts, and approve / reject / escalate actions.
-- Review records with reviewer name, timestamp, edited response, notes, policy version, and policy identifiers.
-- Custom synthetic cases and JSON export.
-- Responsive interface, keyboard navigation, and browser-local persistence.
+Your service’s instructions take priority. There is no universal retry count, wait period, or accepted-document list in this app. Official references were checked on September 28, 2026 and may change.
 
-## Scope and limitations
+## Privacy
 
-This is a deterministic workflow demo, not an LLM integration. The classifier evaluates structured session signals and failed-attempt counts. Free-text messages are shown to the reviewer but not automatically interpreted. All policies are fictional and do not represent any company or jurisdiction.
+No ID uploads. Do not enter ID numbers, passwords, or account secrets. Form entries stay in page memory until you choose “Save on this device,” which writes to localStorage. Nothing is automatically sent to a server or model. “Start over” removes the app’s saved personal-helper record after confirmation. Downloaded notes and clipboard contents remain under your control. Hosting providers still handle ordinary page requests; official help links open external websites.
 
-No identity documents are uploaded or processed. No verification decision is made, no customer message is sent, and no specialist queue is contacted. Approving a response only records a local demo decision.
+## Project history
 
-The review gate is a browser interaction, not a server-enforced security boundary. Reviewer names are self-entered; records are mutable browser-local data, not a tamper-proof audit trail. There is no authentication, shared database, or cross-device sync. Use synthetic information only.
-
-## Implementation
-
-- `src/data.js`: synthetic cases, mock policy text, and error-code labels.
-- `src/engine.js`: classification, policy selection, precedence rules, and review validation.
-- `src/app.js`: case queue, policy viewer, review flow, local storage, and export.
-- `styles.css`: responsive visual design.
-- `tests/engine.test.mjs`: Node built-in tests for policy routing and the human gate.
-- `server.mjs`: dependency-free local static server.
-- `vercel.json`: static deployment and security headers.
-
-## A production extension
-
-Keep the policy and reviewer boundary while replacing synthetic session records with an authenticated provider integration. Add server-side authorization, durable append-only review records, policy versioning, and a controlled outbound messaging step. If adding an LLM for free-text diagnosis, validate its structured output and require source-backed recommendations, with an explicit escalation path when evidence is insufficient.
+The initial version was a synthetic support-operations demo. The current version replaces that workflow with a personal troubleshooting tool. The original prototype remains in Git history.
