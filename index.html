@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A hands-on identity-verification support demo. Diagnose synthetic cases, inspect mock policy, and review the next step." />
+  <meta name="theme-color" content="#163f35" />
+  <title>Clearcase | Verification support</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="module" src="/src/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to workspace</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Clearcase home"><img src="/favicon.svg" alt="" width="32" height="32" />clearcase<span class="brand-caption">Verification operations</span></a>
+    <div class="top-actions"><span class="demo-tag"><span class="dot"></span> Synthetic demo</span><button id="export" class="text-button">Export reviews <span aria-hidden="true">↗</span></button><span class="avatar" aria-label="Demo workspace">CC</span></div>
+  </header>
+  <div class="shell">
+    <aside class="sidebar">
+      <p class="eyebrow">WORKSPACE</p>
+      <nav aria-label="Workspace"><button class="nav-item active" data-view="queue"><span aria-hidden="true">▤</span> Case queue <span id="queue-count" class="nav-count">10</span></button><button class="nav-item" data-view="policies"><span aria-hidden="true">▧</span> Policy library</button><button class="nav-item" data-view="activity"><span aria-hidden="true">◷</span> Review log <span id="review-count" class="nav-count">0</span></button></nav>
+      <div class="sidebar-bottom"><div class="mini-mark">C</div><strong>A clear next step.<br>A human decision.</strong><p>A demo workspace with fictional cases and mock policies.</p><button id="about" class="text-button">How this demo works <span aria-hidden="true">↗</span></button></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <div id="content"></div>
+      <footer><span>Clearcase / Support copilot</span><span>Rule-based demo · No real identity decisions</span></footer>
+    </main>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="dialog"><div id="dialog-content"></div></dialog>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "clearcase-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Identity-verification support copilot with synthetic cases, policy retrieval, and human review.",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
