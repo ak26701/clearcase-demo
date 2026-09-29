@@ -2,6 +2,8 @@
 
 A working identity-verification support copilot prototype. Choose a synthetic case, classify the blocker, retrieve the relevant mock policy, edit the next step, and record a human review decision.
 
+**[Open the live demo](https://clearcase-demo.vercel.app)**
+
 ## Run locally
 
 Requires Node.js 20 or newer. No dependencies or API keys are needed.
